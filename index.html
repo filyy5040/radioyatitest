@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio Yati | YouTube Music Player</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f0f0f;
+            --bg-darker: #080808;
+            --primary: #ffeb3b;
+            --primary-dark: #ffcc00;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --card-bg: #1e1e1e;
+            --card-hover: #2a2a2a;
+            --progress-bg: #333;
+            --progress-active: var(--primary);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --glass-effect: rgba(15, 15, 15, 0.8);
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Layout principale */
+        .app-container {
+            display: grid;
+            grid-template-columns: var(--sidebar-width) 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background-color: var(--bg-darker);
+            padding: 2rem 1.5rem;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            position: fixed;
+            width: var(--sidebar-width);
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .logo-icon {
+            color: var(--primary);
+            font-size: 2.2rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            margin-top: 2rem;
+        }
+
+        .nav-item {
+            margin-bottom: 1rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255, 235, 59, 0.1);
+            color: var(--primary);
+        }
+
+        .nav-link i {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            grid-column: 2;
+            padding: 2rem;
+            margin-left: var(--sidebar-width);
+        }
+
+        .search-bar {
+            display: flex;
+            margin-bottom: 2rem;
+            position: relative;
+            max-width: 600px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 30px;
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+            padding-left: 3rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-input:focus {
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        /* Tracks Grid */
+        .section-title {
+            font-size: 1.5rem;
+            margin: 2rem 0 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .section-title::before {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 25px;
+            background-color: var(--primary);
+            border-radius: 5px;
+        }
+
+        .tracks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .track-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .track-card:hover {
+            transform: translateY(-5px);
+            background-color: var(--card-hover);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .track-image-container {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .track-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+            transition: var(--transition);
+        }
+
+        .track-card:hover .track-image {
+            transform: scale(1.05);
+        }
+
+        .play-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 45px;
+            height: 45px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .track-card:hover .play-btn {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .play-btn i {
+            color: var(--bg-darker);
+            font-size: 1.2rem;
+            margin-left: 2px;
+        }
+
+        .track-info {
+            padding: 1.2rem;
+        }
+
+        .track-title {
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 600;
+        }
+
+        .track-artist {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-duration {
+            color: var(--primary);
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        /* Player */
+        .player-container {
+            position: fixed;
+            bottom: 0;
+            left: var(--sidebar-width);
+            right: 0;
+            background-color: var(--glass-effect);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 1000;
+            transform: translateY(100%);
+            transition: var(--transition);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .player-container.active {
+            transform: translateY(0);
+        }
+
+        .player-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            animation: rotateAlbum 20s linear infinite;
+            animation-play-state: paused;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .player-container.playing .player-image {
+            animation-play-state: running;
+        }
+
+        @keyframes rotateAlbum {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .player-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .player-title {
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 600;
+        }
+
+        .player-artist {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .player-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .control-btn:hover {
+            background-color: rgba(255, 235, 59, 0.1);
+            color: var(--primary);
+        }
+
+        .play-pause-btn {
+            background-color: var(--primary);
+            color: var(--bg-darker);
+            width: 45px;
+            height: 45px;
+            box-shadow: 0 4px 12px rgba(255, 235, 59, 0.3);
+        }
+
+        .play-pause-btn:hover {
+            background-color: var(--primary-dark);
+            color: var(--bg-darker);
+            transform: scale(1.05);
+        }
+
+        .progress-container {
+            flex: 2;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 5px;
+            background-color: var(--progress-bg);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background-color: var(--progress-active);
+            border-radius: 3px;
+            width: 0%;
+        }
+
+        .time {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            min-width: 40px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 235, 59, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                padding: 1.5rem;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
+
+            .player-container {
+                left: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .tracks-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+
+            .player-container {
+                flex-direction: column;
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .player-info {
+                text-align: center;
+            }
+
+            .progress-container {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tracks-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .nav-menu {
+                display: flex;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+                gap: 0.5rem;
+            }
+
+            .nav-item {
+                margin-bottom: 0;
+            }
+
+            .nav-link {
+                padding: 0.6rem;
+                white-space: nowrap;
+            }
+
+            .nav-link span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">♫</div>
+                <div class="logo-text">Radio Yati</div>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-fire"></i>
+                        <span>Trending</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-music"></i>
+                        <span>Genres</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-list"></i>
+                        <span>Playlists</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-heart"></i>
+                        <span>Favorites</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search for songs, artists or albums...">
+            </div>
+
+            <h2 class="section-title">Featured Tracks</h2>
+            <div class="tracks-grid" id="tracks-container">
+                <!-- Tracks will be loaded here -->
+            </div>
+
+            <h2 class="section-title">Recently Played</h2>
+            <div class="tracks-grid" id="recent-tracks">
+                <!-- Recent tracks will be loaded here -->
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Player -->
+    <div class="player-container" id="player">
+        <img src="" alt="Track" class="player-image" id="player-image">
+        <div class="player-info">
+            <div class="player-title" id="player-title">No track selected</div>
+            <div class="player-artist" id="player-artist">Radio Yati</div>
+        </div>
+        <div class="progress-container">
+            <span class="time" id="current-time">0:00</span>
+            <div class="progress-bar" id="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+            <span class="time" id="duration">0:00</span>
+        </div>
+        <div class="player-controls">
+            <button class="control-btn" id="prev-btn">
+                <i class="fas fa-step-backward"></i>
+            </button>
+            <button class="control-btn play-pause-btn" id="play-btn">
+                <i class="fas fa-play" id="play-icon"></i>
+            </button>
+            <button class="control-btn" id="next-btn">
+                <i class="fas fa-step-forward"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- YouTube IFrame API -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const searchInput = document.querySelector('.search-input');
+            const searchBtn = document.querySelector('.search-icon');
+            const tracksContainer = document.getElementById('tracks-container');
+            const recentTracksContainer = document.getElementById('recent-tracks');
+            const loading = document.getElementById('loading');
+            const player = document.getElementById('player');
+            const playerImage = document.getElementById('player-image');
+            const playerTitle = document.getElementById('player-title');
+            const playerArtist = document.getElementById('player-artist');
+            const playBtn = document.getElementById('play-btn');
+            const playIcon = document.getElementById('play-icon');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const progressBar = document.getElementById('progress-bar');
+            const progress = document.getElementById('progress');
+            const currentTimeEl = document.getElementById('current-time');
+            const durationEl = document.getElementById('duration');
+
+            // YouTube API
+            const YOUTUBE_API_KEY = 'AIzaSyC4uFEuQ66q8hSvFOIZvjbLA3aREQqbtG4'; // SOSTITUISCI CON LA TUA CHIAVE
+            const YOUTUBE_API_URL = 'https://www.googleapis.com/youtube/v3';
+            
+            let currentTracks = [];
+            let currentTrackIndex = -1;
+            let youtubePlayer = null;
+            let isPlaying = false;
+            let updateProgressInterval = null;
+            let recentTracks = JSON.parse(localStorage.getItem('recentTracks')) || [];
+
+            // Initialize
+            loadFeaturedTracks();
+            loadRecentTracks();
+            loadYouTubeAPI();
+
+            // Event Listeners
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchTracks();
+                }
+            });
+
+            searchBtn.addEventListener('click', searchTracks);
+            playBtn.addEventListener('click', togglePlay);
+            prevBtn.addEventListener('click', playPrevious);
+            nextBtn.addEventListener('click', playNext);
+            progressBar.addEventListener('click', seek);
+
+            // Functions
+            function loadYouTubeAPI() {
+                const tag = document.createElement('script');
+                tag.src = "https://www.youtube.com/iframe_api";
+                const firstScriptTag = document.getElementsByTagName('script')[0];
+                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            }
+
+            function onYouTubeIframeAPIReady() {
+                youtubePlayer = new YT.Player('youtube-player', {
+                    height: '0',
+                    width: '0',
+                    events: {
+                        'onReady': onPlayerReady,
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+            }
+
+            function onPlayerReady(event) {
+                console.log('YouTube Player ready');
+            }
+
+            function onPlayerStateChange(event) {
+                switch(event.data) {
+                    case YT.PlayerState.PLAYING:
+                        isPlaying = true;
+                        updatePlayButton();
+                        player.classList.add('playing');
+                        startProgressUpdate();
+                        break;
+                    case YT.PlayerState.PAUSED:
+                        isPlaying = false;
+                        updatePlayButton();
+                        player.classList.remove('playing');
+                        break;
+                    case YT.PlayerState.ENDED:
+                        playNext();
+                        break;
+                }
+            }
+
+            async function loadFeaturedTracks() {
+                showLoading();
+                try {
+                    // Example: Get popular music videos
+                    const response = await fetch(`${YOUTUBE_API_URL}/search?part=snippet&maxResults=12&type=video&videoCategoryId=10&order=viewCount&key=${YOUTUBE_API_KEY}`);
+                    const data = await response.json();
+                    
+                    // Get video durations
+                    const videoIds = data.items.map(item => item.id.videoId).join(',');
+                    const detailsResponse = await fetch(`${YOUTUBE_API_URL}/videos?part=snippet,contentDetails&id=${videoIds}&key=${YOUTUBE_API_KEY}`);
+                    const detailsData = await detailsResponse.json();
+                    
+                    currentTracks = data.items.map((item, index) => ({
+                        id: item.id.videoId,
+                        title: item.snippet.title,
+                        artist: item.snippet.channelTitle,
+                        duration: convertDuration(detailsData.items[index].contentDetails.duration),
+                        thumbnail: item.snippet.thumbnails.high.url
+                    }));
+                    
+                    displayTracks(currentTracks, tracksContainer);
+                } catch (error) {
+                    console.error('Error loading tracks:', error);
+                    tracksContainer.innerHTML = '<p>Error loading tracks. Please try again later.</p>';
+                } finally {
+                    hideLoading();
+                }
+            }
+
+            function loadRecentTracks() {
+                if (recentTracks.length > 0) {
+                    displayTracks(recentTracks.slice(0, 6), recentTracksContainer);
+                }
+            }
+
+            function convertDuration(duration) {
+                // Convert ISO 8601 duration to seconds
+                const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+                const hours = (parseInt(match[1]) || 0);
+                const minutes = (parseInt(match[2]) || 0);
+                const seconds = (parseInt(match[3]) || 0);
+                return hours * 3600 + minutes * 60 + seconds;
+            }
+
+            async function searchTracks() {
+                const query = searchInput.value.trim();
+                if (!query) return;
+
+                showLoading();
+                try {
+                    const response = await fetch(`${YOUTUBE_API_URL}/search?part=snippet&maxResults=12&type=video&videoCategoryId=10&q=${encodeURIComponent(query)}&key=${YOUTUBE_API_KEY}`);
+                    const data = await response.json();
+                    
+                    // Get video durations
+                    const videoIds = data.items.map(item => item.id.videoId).join(',');
+                    const detailsResponse = await fetch(`${YOUTUBE_API_URL}/videos?part=snippet,contentDetails&id=${videoIds}&key=${YOUTUBE_API_KEY}`);
+                    const detailsData = await detailsResponse.json();
+                    
+                    currentTracks = data.items.map((item, index) => ({
+                        id: item.id.videoId,
+                        title: item.snippet.title,
+                        artist: item.snippet.channelTitle,
+                        duration: convertDuration(detailsData.items[index].contentDetails.duration),
+                        thumbnail: item.snippet.thumbnails.high.url
+                    }));
+                    
+                    displayTracks(currentTracks, tracksContainer);
+                } catch (error) {
+                    console.error('Error searching tracks:', error);
+                    tracksContainer.innerHTML = '<p>Error searching tracks. Please try again later.</p>';
+                } finally {
+                    hideLoading();
+                }
+            }
+
+            function displayTracks(tracks, container) {
+                if (tracks.length === 0) {
+                    container.innerHTML = '<p>No tracks found. Try a different search.</p>';
+                    return;
+                }
+
+                container.innerHTML = tracks.map((track, index) => `
+                    <div class="track-card" data-index="${index}">
+                        <div class="track-image-container">
+                            <img src="${track.thumbnail}" alt="${track.title}" class="track-image">
+                            <div class="play-btn">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
+                        <div class="track-info">
+                            <div class="track-title">${track.title}</div>
+                            <div class="track-artist">${track.artist}</div>
+                            <div class="track-duration">
+                                <i class="far fa-clock"></i>
+                                ${formatTime(track.duration)}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Add click event to each track card
+                document.querySelectorAll('.track-card').forEach(card => {
+                    card.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-index'));
+                        playTrack(index);
+                    });
+                });
+            }
+
+            function playTrack(index) {
+                if (index < 0 || index >= currentTracks.length) return;
+
+                currentTrackIndex = index;
+                const track = currentTracks[index];
+
+                // Add to recent tracks
+                if (!recentTracks.some(t => t.id === track.id)) {
+                    recentTracks.unshift(track);
+                    if (recentTracks.length > 10) recentTracks.pop();
+                    localStorage.setItem('recentTracks', JSON.stringify(recentTracks));
+                    loadRecentTracks();
+                }
+
+                // Update player UI
+                playerImage.src = track.thumbnail;
+                playerTitle.textContent = track.title;
+                playerArtist.textContent = track.artist;
+                durationEl.textContent = formatTime(track.duration);
+
+                // Load and play the track
+                if (!youtubePlayer) {
+                    // Create player if it doesn't exist
+                    youtubePlayer = new YT.Player('youtube-player', {
+                        height: '0',
+                        width: '0',
+                        videoId: track.id,
+                        playerVars: {
+                            autoplay: 1,
+                            controls: 0,
+                            disablekb: 1,
+                            modestbranding: 1
+                        },
+                        events: {
+                            'onReady': onPlayerReady,
+                            'onStateChange': onPlayerStateChange
+                        }
+                    });
+                } else {
+                    // Load new video if player exists
+                    youtubePlayer.loadVideoById(track.id);
+                }
+
+                // Show player
+                player.classList.add('active');
+                isPlaying = true;
+                updatePlayButton();
+            }
+
+            function togglePlay() {
+                if (!youtubePlayer) return;
+
+                if (isPlaying) {
+                    youtubePlayer.pauseVideo();
+                } else {
+                    youtubePlayer.playVideo();
+                }
+            }
+
+            function playPrevious() {
+                if (currentTrackIndex <= 0) return;
+                playTrack(currentTrackIndex - 1);
+            }
+
+            function playNext() {
+                if (currentTrackIndex >= currentTracks.length - 1) return;
+                playTrack(currentTrackIndex + 1);
+            }
+
+            function seek(e) {
+                if (!youtubePlayer) return;
+                
+                const percent = e.offsetX / progressBar.offsetWidth;
+                youtubePlayer.seekTo(youtubePlayer.getDuration() * percent);
+            }
+
+            function startProgressUpdate() {
+                clearInterval(updateProgressInterval);
+                updateProgressInterval = setInterval(updateProgress, 1000);
+            }
+
+            function updateProgress() {
+                if (!youtubePlayer) return;
+
+                const currentTime = youtubePlayer.getCurrentTime();
+                const duration = youtubePlayer.getDuration();
+                const percent = (currentTime / duration) * 100;
+                
+                progress.style.width = `${percent}%`;
+                currentTimeEl.textContent = formatTime(currentTime);
+                durationEl.textContent = formatTime(duration);
+            }
+
+            function updatePlayButton() {
+                playIcon.className = isPlaying ? 'fas fa-pause' : 'fas fa-play';
+            }
+
+            function formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            }
+
+            function showLoading() {
+                loading.style.display = 'flex';
+            }
+
+            function hideLoading() {
+                loading.style.display = 'none';
+            }
+        });
+
+        // This function is called by YouTube IFrame API
+        function onYouTubeIframeAPIReady() {
+            // The player will be created when needed
+        }
+    </script>
+
+    <!-- Hidden YouTube player -->
+    <div id="youtube-player"></div>
+</body>
+</html>
