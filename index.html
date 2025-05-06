@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Radio Yati | Web Player</title>
+    <title>Radio Yati | YouTube Music Player</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -273,7 +273,7 @@
             gap: 0.3rem;
         }
 
-        /* Player */
+        /* Player Minimizzato */
         .player-container {
             position: fixed;
             bottom: 0;
@@ -303,6 +303,7 @@
             animation: rotateAlbum 20s linear infinite;
             animation-play-state: paused;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
         }
 
         .player-container.playing .player-image {
@@ -317,6 +318,7 @@
         .player-info {
             flex: 1;
             min-width: 0;
+            cursor: pointer;
         }
 
         .player-title {
@@ -410,6 +412,142 @@
             font-family: 'Poppins', sans-serif;
         }
 
+        /* Player Espanso */
+        .player-expanded {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-darker);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            padding: 2rem;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .player-expanded.active {
+            display: flex;
+            transform: translateY(0);
+        }
+
+        .expanded-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .expanded-image-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .expanded-image {
+            width: 80%;
+            max-width: 400px;
+            border-radius: 16px;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+            animation: rotateAlbum 20s linear infinite;
+            animation-play-state: paused;
+        }
+
+        .player-expanded.playing .expanded-image {
+            animation-play-state: running;
+        }
+
+        .expanded-info {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .expanded-title {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .expanded-artist {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .expanded-progress-container {
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+
+        .expanded-progress-bar {
+            width: 100%;
+            height: 6px;
+            background-color: var(--progress-bg);
+            border-radius: 3px;
+            cursor: pointer;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .expanded-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background-color: var(--progress-active);
+            border-radius: 3px;
+            width: 0%;
+        }
+
+        .expanded-time-container {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .expanded-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .expanded-control-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .expanded-play-btn {
+            background-color: var(--primary);
+            color: var(--bg-darker);
+            width: 70px;
+            height: 70px;
+            box-shadow: 0 8px 24px rgba(255, 235, 59, 0.4);
+        }
+
         /* Loading Animation */
         .loading {
             display: flex;
@@ -430,7 +568,7 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Responsive */
+        /* ==================== MOBILE RESPONSIVE ==================== */
         @media (max-width: 1024px) {
             .app-container {
                 grid-template-columns: 1fr;
@@ -458,12 +596,14 @@
         @media (max-width: 768px) {
             .tracks-grid {
                 grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 1rem;
             }
 
             .player-container {
                 flex-direction: column;
                 padding: 1rem;
                 gap: 1rem;
+                align-items: stretch;
             }
 
             .player-info {
@@ -472,32 +612,178 @@
 
             .progress-container {
                 width: 100%;
+                order: 1;
+            }
+
+            .player-controls {
+                justify-content: center;
+                order: 2;
+            }
+
+            .player-image {
+                width: 80px;
+                height: 80px;
+                margin: 0 auto;
             }
         }
 
         @media (max-width: 480px) {
-            .tracks-grid {
-                grid-template-columns: 1fr 1fr;
+            /* Sidebar mobile (diventa menu bottom) */
+            .sidebar {
+                position: fixed;
+                bottom: 0;
+                top: auto;
+                width: 100%;
+                height: auto;
+                padding: 0.5rem;
+                z-index: 1000;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                border-right: none;
+                border-bottom: none;
+            }
+
+            .logo {
+                display: none;
             }
 
             .nav-menu {
                 display: flex;
-                overflow-x: auto;
-                padding-bottom: 0.5rem;
-                gap: 0.5rem;
+                justify-content: space-around;
+                margin-top: 0;
+                gap: 0;
             }
 
             .nav-item {
-                margin-bottom: 0;
+                margin: 0;
+                flex: 1;
+                text-align: center;
             }
 
             .nav-link {
-                padding: 0.6rem;
-                white-space: nowrap;
+                flex-direction: column;
+                padding: 0.5rem;
+                gap: 0.3rem;
+                font-size: 0.7rem;
+            }
+
+            .nav-link i {
+                font-size: 1rem;
             }
 
             .nav-link span {
-                display: none;
+                display: block;
+            }
+
+            /* Main content adjustments */
+            .main-content {
+                padding: 1rem;
+                padding-bottom: 70px; /* Spazio per il menu bottom */
+            }
+
+            .search-bar {
+                margin-bottom: 1rem;
+            }
+
+            .search-input {
+                padding: 0.8rem 1.2rem 0.8rem 2.5rem;
+                font-size: 0.9rem;
+            }
+
+            .section-title {
+                font-size: 1.2rem;
+                margin: 1.5rem 0 1rem;
+            }
+
+            .tracks-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.8rem;
+            }
+
+            .track-image {
+                height: 120px;
+            }
+
+            .track-info {
+                padding: 0.8rem;
+            }
+
+            .track-title {
+                font-size: 0.9rem;
+            }
+
+            .track-artist {
+                font-size: 0.75rem;
+            }
+
+            /* Player mobile */
+            .player-container {
+                padding: 0.8rem;
+                left: 0;
+                right: 0;
+                bottom: 60px; /* Sopra il menu mobile */
+            }
+
+            .player-image {
+                width: 50px;
+                height: 50px;
+            }
+
+            .player-title {
+                font-size: 0.9rem;
+            }
+
+            .player-artist {
+                font-size: 0.75rem;
+            }
+
+            .control-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+
+            .play-pause-btn {
+                width: 40px;
+                height: 40px;
+            }
+
+            /* Player espanso mobile */
+            .player-expanded {
+                padding: 1rem;
+            }
+
+            .expanded-image {
+                width: 100%;
+            }
+
+            .expanded-title {
+                font-size: 1.5rem;
+            }
+
+            .expanded-artist {
+                font-size: 1rem;
+            }
+
+            .expanded-controls {
+                gap: 1rem;
+            }
+
+            .expanded-control-btn {
+                font-size: 1.2rem;
+                width: 40px;
+                height: 40px;
+            }
+
+            .expanded-play-btn {
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+        /* Extra small devices (meno di 360px) */
+        @media (max-width: 360px) {
+            .tracks-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -513,37 +799,37 @@
 
             <ul class="nav-menu">
                 <li class="nav-item">
-                    <a href="index.html" class="nav-link active">
+                    <a href="#" class="nav-link active">
                         <i class="fas fa-home"></i>
                         <span>Home</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="index.html" class="nav-link">
+                    <a href="#" class="nav-link">
                         <i class="fas fa-fire"></i>
                         <span>Trending</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="inarrivo.html" class="nav-link">
+                    <a href="#" class="nav-link">
                         <i class="fas fa-music"></i>
                         <span>Genres</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="inarrivo.html" class="nav-link">
+                    <a href="#" class="nav-link">
                         <i class="fas fa-list"></i>
                         <span>Playlists</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="inarrivo.html" class="nav-link">
+                    <a href="#" class="nav-link">
                         <i class="fas fa-heart"></i>
                         <span>Favorites</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="inarrivo.html" class="nav-link">
+                    <a href="#" class="nav-link">
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
                     </a>
@@ -574,10 +860,10 @@
         </main>
     </div>
 
-    <!-- Player -->
+    <!-- Player Minimizzato -->
     <div class="player-container" id="player">
         <img src="" alt="Track" class="player-image" id="player-image">
-        <div class="player-info">
+        <div class="player-info" id="player-info">
             <div class="player-title" id="player-title">No track selected</div>
             <div class="player-artist" id="player-artist">Radio Yati</div>
         </div>
@@ -601,6 +887,46 @@
         </div>
     </div>
 
+    <!-- Player Espanso -->
+    <div class="player-expanded" id="player-expanded">
+        <div class="expanded-header">
+            <button class="back-btn" id="back-btn">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+        
+        <div class="expanded-image-container">
+            <img src="" alt="Track" class="expanded-image" id="expanded-image">
+        </div>
+        
+        <div class="expanded-info">
+            <div class="expanded-title" id="expanded-title">No track selected</div>
+            <div class="expanded-artist" id="expanded-artist">Radio Yati</div>
+        </div>
+        
+        <div class="expanded-progress-container">
+            <div class="expanded-progress-bar" id="expanded-progress-bar">
+                <div class="expanded-progress" id="expanded-progress"></div>
+            </div>
+            <div class="expanded-time-container">
+                <span id="expanded-current-time">0:00</span>
+                <span id="expanded-duration">0:00</span>
+            </div>
+        </div>
+        
+        <div class="expanded-controls">
+            <button class="expanded-control-btn" id="expanded-prev-btn">
+                <i class="fas fa-step-backward"></i>
+            </button>
+            <button class="expanded-control-btn expanded-play-btn" id="expanded-play-btn">
+                <i class="fas fa-play" id="expanded-play-icon"></i>
+            </button>
+            <button class="expanded-control-btn" id="expanded-next-btn">
+                <i class="fas fa-step-forward"></i>
+            </button>
+        </div>
+    </div>
+
     <!-- YouTube IFrame API -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -612,6 +938,7 @@
             const loading = document.getElementById('loading');
             const player = document.getElementById('player');
             const playerImage = document.getElementById('player-image');
+            const playerInfo = document.getElementById('player-info');
             const playerTitle = document.getElementById('player-title');
             const playerArtist = document.getElementById('player-artist');
             const playBtn = document.getElementById('play-btn');
@@ -622,6 +949,21 @@
             const progress = document.getElementById('progress');
             const currentTimeEl = document.getElementById('current-time');
             const durationEl = document.getElementById('duration');
+            
+            // Expanded player elements
+            const playerExpanded = document.getElementById('player-expanded');
+            const backBtn = document.getElementById('back-btn');
+            const expandedImage = document.getElementById('expanded-image');
+            const expandedTitle = document.getElementById('expanded-title');
+            const expandedArtist = document.getElementById('expanded-artist');
+            const expandedProgressBar = document.getElementById('expanded-progress-bar');
+            const expandedProgress = document.getElementById('expanded-progress');
+            const expandedCurrentTime = document.getElementById('expanded-current-time');
+            const expandedDuration = document.getElementById('expanded-duration');
+            const expandedPlayBtn = document.getElementById('expanded-play-btn');
+            const expandedPlayIcon = document.getElementById('expanded-play-icon');
+            const expandedPrevBtn = document.getElementById('expanded-prev-btn');
+            const expandedNextBtn = document.getElementById('expanded-next-btn');
 
             // YouTube API
             const YOUTUBE_API_KEY = 'AIzaSyDJKuO7CuWCGMSi8GCBvn0rHFxpB5fo7Zw'; // SOSTITUISCI CON LA TUA CHIAVE
@@ -651,6 +993,15 @@
             prevBtn.addEventListener('click', playPrevious);
             nextBtn.addEventListener('click', playNext);
             progressBar.addEventListener('click', seek);
+            
+            // Expanded player events
+            playerImage.addEventListener('click', expandPlayer);
+            playerInfo.addEventListener('click', expandPlayer);
+            backBtn.addEventListener('click', minimizePlayer);
+            expandedPlayBtn.addEventListener('click', togglePlay);
+            expandedPrevBtn.addEventListener('click', playPrevious);
+            expandedNextBtn.addEventListener('click', playNext);
+            expandedProgressBar.addEventListener('click', seek);
 
             // Functions
             function loadYouTubeAPI() {
@@ -681,17 +1032,28 @@
                         isPlaying = true;
                         updatePlayButton();
                         player.classList.add('playing');
+                        playerExpanded.classList.add('playing');
                         startProgressUpdate();
                         break;
                     case YT.PlayerState.PAUSED:
                         isPlaying = false;
                         updatePlayButton();
                         player.classList.remove('playing');
+                        playerExpanded.classList.remove('playing');
                         break;
                     case YT.PlayerState.ENDED:
                         playNext();
                         break;
                 }
+            }
+
+            function expandPlayer() {
+                if (currentTrackIndex === -1) return;
+                playerExpanded.classList.add('active');
+            }
+
+            function minimizePlayer() {
+                playerExpanded.classList.remove('active');
             }
 
             async function loadFeaturedTracks() {
@@ -822,6 +1184,17 @@
                 playerTitle.textContent = track.title;
                 playerArtist.textContent = track.artist;
                 durationEl.textContent = formatTime(track.duration);
+                
+                // Update expanded player UI
+                expandedImage.src = track.thumbnail;
+                expandedTitle.textContent = track.title;
+                expandedArtist.textContent = track.artist;
+                expandedDuration.textContent = formatTime(track.duration);
+
+                // Show player
+                player.classList.add('active');
+                isPlaying = true;
+                updatePlayButton();
 
                 // Load and play the track
                 if (!youtubePlayer) {
@@ -845,11 +1218,6 @@
                     // Load new video if player exists
                     youtubePlayer.loadVideoById(track.id);
                 }
-
-                // Show player
-                player.classList.add('active');
-                isPlaying = true;
-                updatePlayButton();
             }
 
             function togglePlay() {
@@ -875,8 +1243,11 @@
             function seek(e) {
                 if (!youtubePlayer) return;
                 
-                const percent = e.offsetX / progressBar.offsetWidth;
-                youtubePlayer.seekTo(youtubePlayer.getDuration() * percent);
+                const percent = e.offsetX / e.currentTarget.offsetWidth;
+                const seekTime = youtubePlayer.getDuration() * percent;
+                
+                youtubePlayer.seekTo(seekTime, true);
+                updateProgress();
             }
 
             function startProgressUpdate() {
@@ -892,12 +1263,17 @@
                 const percent = (currentTime / duration) * 100;
                 
                 progress.style.width = `${percent}%`;
+                expandedProgress.style.width = `${percent}%`;
                 currentTimeEl.textContent = formatTime(currentTime);
+                expandedCurrentTime.textContent = formatTime(currentTime);
                 durationEl.textContent = formatTime(duration);
+                expandedDuration.textContent = formatTime(duration);
             }
 
             function updatePlayButton() {
-                playIcon.className = isPlaying ? 'fas fa-pause' : 'fas fa-play';
+                const icon = isPlaying ? 'fas fa-pause' : 'fas fa-play';
+                playIcon.className = icon;
+                expandedPlayIcon.className = icon;
             }
 
             function formatTime(seconds) {
