@@ -462,12 +462,9 @@
             max-width: 400px;
             border-radius: 16px;
             box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
-            animation: rotateAlbum 20s linear infinite;
-            animation-play-state: paused;
         }
 
         .player-expanded.playing .expanded-image {
-            animation-play-state: running;
         }
 
         .expanded-info {
@@ -1032,14 +1029,12 @@
                         isPlaying = true;
                         updatePlayButton();
                         player.classList.add('playing');
-                        playerExpanded.classList.add('playing');
                         startProgressUpdate();
                         break;
                     case YT.PlayerState.PAUSED:
                         isPlaying = false;
                         updatePlayButton();
                         player.classList.remove('playing');
-                        playerExpanded.classList.remove('playing');
                         break;
                     case YT.PlayerState.ENDED:
                         playNext();
